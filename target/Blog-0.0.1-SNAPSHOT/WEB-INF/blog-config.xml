@@ -1,0 +1,146 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+ 	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+ 	http://www.springframework.org/schema/mvc
+ 	http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+ 	http://www.springframework.org/schema/context
+ 	http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+ 	
+ 	
+  <!--   cho phép hỗ trợ từ spring mvc: để hiểu được @Controller, @Request Mapping -->
+	<mvc:annotation-driven></mvc:annotation-driven>
+	<context:annotation-config />
+	
+	
+	<!-- quét toàn bộ các lớp trong package để khởi tạo -->
+	<context:component-scan base-package="com.zent.blog"/>
+	
+	<mvc:resources location="/css/" mapping="/css/**"/>
+	<mvc:resources mapping="/static/**" location="/static/" />
+	<mvc:resources mapping="/upload/**" location="/upload/" />
+	
+
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix">
+        	<!-- Nếu để /  thì mặc định đường contex ở webapp  -->
+            <value>/pages/</value>
+        </property>
+        <property name="suffix">
+            <value>.jsp</value>
+        </property>
+    </bean>
+    
+     <bean id="dataSource" 
+      class = "org.springframework.jdbc.datasource.DriverManagerDataSource">
+      <property name = "driverClassName" value = "oracle.jdbc.driver.OracleDriver"/>
+      <property name = "url" value = "jdbc:oracle:thin:@192.168.2.111:1521:blog"/>
+      <property name = "username" value = "system"/>
+      <property name = "password" value = "Duc123456"/>
+   </bean>
+   
+	<!-- <bean id="loginDAO" class="com.zent.dao.LoginDAO">
+   		<property name="dataSource" ref="dataSource"></property>
+   </bean>
+   <bean id="userValidator" class="com.zent.validator.UserValidator"></bean>
+   <bean id="loginController" class="com.zent.controller.LoginController">
+   		<property name="loginDAO" ref="loginDAO"></property>
+   		<property name="userValidator" ref="userValidator"></property>
+   		
+   </bean> -->
+   
+   
+  	<!-- User -->
+  	<bean id="userDAO" class="com.zent.dao.UserDAO">
+   		<property name="dataSource" ref="dataSource"></property>
+   </bean>
+   <bean id="loginValidator" class="com.zent.validator.LoginValidator"></bean>
+   <bean id="userController" class="com.zent.controller.UserController">
+   		<property name="userDAO" ref="userDAO"></property>	
+   		<property name="loginValidator" ref="loginValidator"></property>
+   </bean>
+   
+   
+   <!-- Categories -->
+    <bean id="cateDAO" class="com.zent.dao.CategoriesDAO">
+   		<property name="dataSource" ref="dataSource"></property>
+   </bean>
+   <bean id="categoryValidator" class="com.zent.validator.CategoryValidator"></bean>
+   <bean id="cateController" class="com.zent.controller.CategoriesController">
+   		<property name="categoriesDAO" ref="cateDAO"></property>
+   		<property name="categoryValidator" ref="categoryValidator"></property>
+   </bean>
+   
+   
+   <!-- Tags -->
+     <bean id="tagsDAO" class="com.zent.dao.TagsDAO">
+   		<property name="dataSource" ref="dataSource"></property>
+   </bean>
+   <!-- <bean id="tagsValidator" class="com.zent.validator.CategoryValidator"></bean> -->
+   <bean id="tagsController" class="com.zent.controller.TagsController">
+   		<property name="tagsDAO" ref="tagsDAO"></property>
+   		<!-- <property name="categoryValidator" ref="categoryValidator"></property> -->
+   </bean>
+   
+    <!-- Posts -->
+     <bean id="postsDAO" class="com.zent.dao.PostsDAO">
+   		<property name="dataSource" ref="dataSource"></property>
+   </bean>
+  <bean id="postsValidator" class="com.zent.validator.PostsValidator"></bean>
+   <bean id="postsController" class="com.zent.controller.PostsController">
+   		<property name="postsDAO" ref="postsDAO"></property>
+   		<property name="categoriesDAO" ref="cateDAO"></property>
+   		<property name="tagsDAO" ref="tagsDAO"></property>
+   		<property name="postsValidator" ref="postsValidator"></property>
+   		<property name="postsTagsDAO" ref="postsTagsDAO"></property>
+   		
+   </bean>
+   
+    <!-- Posts_Tags -->
+     <bean id="postsTagsDAO" class="com.zent.dao.PostsTagsDAO">
+   		<property name="dataSource" ref="dataSource"></property>
+   </bean>
+   <!-- show Blog -->
+   <bean id="blogController" class="com.zent.controller.BlogController">
+   		<property name="postsDAO" ref="postsDAO"></property>
+   		<property name="tagsDAO" ref="tagsDAO"></property>
+   		<property name="categoriesDAO" ref="cateDAO"></property>
+   		<property name="userDAO" ref="userDAO"></property>	
+   </bean>
+	
+   <!-- Cấu hình upload file -->
+   <bean id="multipartResolver"
+        class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- max upload size in bytes -->
+        <property name="maxUploadSize" value="20971520" /> <!-- 20MB -->
+         
+        <!-- max size of file in memory (in bytes) -->
+        <property name="maxInMemorySize" value="1048576" /> <!-- 1MB -->
+    </bean>
+   <!-- Cấu hình file chứa language -->
+    <bean id="messageSource"
+    class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+    <property name="basename" value="/i18n/language" />
+    <property name="defaultEncoding" value="UTF-8" />
+  </bean>
+  <!-- Định nghĩa  -->
+<!--   <bean id="localeResolver" nếu dùng session thay thế ở dưới.
+    class="org.springframework.web.servlet.i18n.SessionLocaleResolver"> -->
+    
+  <bean id="localeResolver" 
+    class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
+    <property name="defaultLocale" value="vi" />
+    <property name="cookieName" value="myAppLocaleCookie"></property>
+    <property name="cookieMaxAge" value="3600"></property>
+  </bean>
+  
+     <mvc:interceptors>
+    <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+      <property name="paramName" value="language" />
+    </bean>
+  </mvc:interceptors>
+   
+   
+</beans>
