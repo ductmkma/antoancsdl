@@ -31,10 +31,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.zent.dao.IActivityLogs;
 import com.zent.dao.ICategoriesDAO;
 import com.zent.dao.IPostsDAO;
 import com.zent.dao.IPostsTagsDAO;
 import com.zent.dao.ITagsDAO;
+import com.zent.entity.ActivityLogs;
 import com.zent.entity.Category;
 import com.zent.entity.Posts;
 import com.zent.entity.PostsTags;
@@ -52,7 +54,15 @@ public class PostsController {
 	private ICategoriesDAO categoriesDAO;
 	private ITagsDAO tagsDAO;
 	private IPostsTagsDAO postsTagsDAO;
-	
+	private IActivityLogs activityDAO;
+
+	public IActivityLogs getActivityDAO() {
+		return activityDAO;
+	}
+
+	public void setActivityDAO(IActivityLogs activityDAO) {
+		this.activityDAO = activityDAO;
+	}
 	
 	public IPostsTagsDAO getPostsTagsDAO() {
 		return postsTagsDAO;
@@ -97,10 +107,12 @@ public class PostsController {
 	}
 
 	@RequestMapping(value = "/post", method = RequestMethod.GET)
-	public String indexPost(Model model, HttpSession session) {
+	public String indexPost(Model model, HttpSession session,HttpServletRequest request) {
 		if(session.getAttribute("fullname")!=null&&session.getAttribute("fullname")!="") {
 			model.addAttribute("openMenuManagerPosts", "menu-open active");
 			model.addAttribute("activeMenuPosts", "active");
+			ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+			activityDAO.insert(al);
 			return "postmanager";
 		}else {
 			return "redirect:/login";
@@ -111,13 +123,15 @@ public class PostsController {
 
 	// post add
 	@RequestMapping(value = "/post/add", method = RequestMethod.GET)
-	public String index(Model model, HttpSession session) {
+	public String index(Model model, HttpSession session,HttpServletRequest request) {
 		if(session.getAttribute("userId")!=null&&session.getAttribute("userId")!="") {
 			model.addAttribute("posts", new Posts());
 			model.addAttribute("openMenuManagerPosts", "menu-open active");
 			model.addAttribute("activeMenuPosts", "active");
 			model.addAttribute("listCate", categoriesDAO.getAll());
 			model.addAttribute("listUsed", categoriesDAO.getMostUserCate());
+			ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+			activityDAO.insert(al);
 			return "postadd";
 		}else {
 			return "redirect:/login";
@@ -131,7 +145,7 @@ public class PostsController {
 	}
 
 	@RequestMapping(value = "/post/add", method = RequestMethod.POST)
-	public String index1(@ModelAttribute @Validated Posts post, BindingResult result, ModelMap modelMap, Model model) {
+	public String index1(@ModelAttribute @Validated Posts post, BindingResult result, ModelMap modelMap, Model model,HttpServletRequest request, HttpSession session) {
 		modelMap.addAttribute("formDataWithFile", post);
 		if (result.hasErrors()) {
 			model.addAttribute("listCate", categoriesDAO.getAll());
@@ -184,6 +198,8 @@ public class PostsController {
 						 postsTagsDAO.insert(postsTags);
 					}
 				}
+				ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+				activityDAO.insert(al);
 				
 				return "redirect:/post";
 			}
@@ -194,7 +210,7 @@ public class PostsController {
 	
 	//Edit
 	@RequestMapping(value = "post/edit/{id}", method = RequestMethod.GET)
-	public String edit(@PathVariable("id") Integer id,Model model, HttpSession session) {
+	public String edit(@PathVariable("id") Integer id,Model model, HttpSession session,HttpServletRequest request) {
 		/*model.addAttribute("posts",new Posts());*/
 		if(session.getAttribute("fullname")!=null&&session.getAttribute("fullname")!="") {
 			model.addAttribute("openMenuManagerPosts", "menu-open active");
@@ -209,6 +225,8 @@ public class PostsController {
 			model.addAttribute("listCate", categoriesDAO.getAll());
 			model.addAttribute("listUsed", categoriesDAO.getMostUserCate());
 			model.addAttribute("posts", post);
+			ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+			activityDAO.insert(al);
 			return "postedit";
 		}else {
 			return "redirect:/login";
@@ -216,7 +234,7 @@ public class PostsController {
 		
 	}
 	@RequestMapping(value = "post/edit/{id}", method = RequestMethod.POST)
-	public String editsubmit(@ModelAttribute @Validated Posts post, BindingResult result,ModelMap modelMap,Model model) {
+	public String editsubmit(@ModelAttribute @Validated Posts post, BindingResult result,ModelMap modelMap,Model model,HttpServletRequest request,HttpSession session) {
 		modelMap.addAttribute("formDataWithFile", post);
 		int bien = tagsDAO.getTagsByPost(post.getId()).size();
 		if (result.hasErrors()) {
@@ -300,7 +318,8 @@ public class PostsController {
 					}
 					
 				}
-				
+				ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+				activityDAO.insert(al);
 				return "redirect:/post";
 			}
 		}
@@ -308,7 +327,7 @@ public class PostsController {
 	}
 	//Xóa post tạm thời
 	@RequestMapping(value = "/post/delete", method = RequestMethod.POST, produces = "application/json")
-	public @ResponseBody JsonResponse delete(HttpServletRequest request){
+	public @ResponseBody JsonResponse delete(HttpServletRequest request,HttpSession session){
 		String action = request.getParameter("action");
 		JsonResponse res = new JsonResponse();
 		if(action!=null&&action.equals("delete")) {
@@ -316,6 +335,8 @@ public class PostsController {
 			Posts post = new Posts();
 			post.setId(id);
 			postsDAO.deleteTemp(post);
+			ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+			activityDAO.insert(al);
 			res.setStatus("SUCCESS");
 			res.setResult(new Boolean(true));	
 		}else {
@@ -343,7 +364,7 @@ public class PostsController {
 	}
 	// show list
 		@RequestMapping(value = "/listposts", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
-		public @ResponseBody String springPaginationDataTables(HttpServletRequest request) throws IOException {
+		public @ResponseBody String springPaginationDataTables(HttpServletRequest request,HttpSession session) throws IOException {
 
 			// Fetch the page number from client
 			Integer pageNumber = 0;
@@ -385,7 +406,8 @@ public class PostsController {
 			postsJsonObject.setAaData(listPost);
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			String json2 = gson.toJson(postsJsonObject);
-			// System.out.println(json2);
+			ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+			activityDAO.insert(al);
 			return json2;
 		}
 }

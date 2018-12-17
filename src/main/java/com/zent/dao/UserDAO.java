@@ -123,13 +123,25 @@ public class UserDAO implements IUserDAO {
 		Object[] args = new Object[2];
 		args[0] = user.getEmail();
 		args[1] = new Security().md5(user.getPassword());
-		String sql = "SELECT * FROM MINHDUC.users WHERE group_id=1 and email=? and password=? ";
+		String sql = "SELECT * FROM MINHDUC.users WHERE group_id=1 and email= ? and password=? ";
 		List<User> users = jdbcTemplateObject.query(sql, args, new UserMapper());
 		if (!users.isEmpty()) {
 			return true; 
 		}
 		return false;
 	}
+	
+//	public boolean checkLogin(User user) {
+//		Object[] args = new Object[2];
+//		args[0] = user.getEmail();
+//		args[1] = new Security().md5(user.getPassword());
+//		String sql = "SELECT * FROM MINHDUC.users WHERE group_id=1 and email= '"+user.getEmail()+"' and password= '"+user.getPassword()+"' ";
+//		List<User> users = jdbcTemplateObject.query(sql, new UserMapper());
+//		if (!users.isEmpty()) {
+//			return true; 
+//		}
+//		return false;
+//	}
 
 	public String getFullName(User user) {
 		Object[] args = new Object[2];

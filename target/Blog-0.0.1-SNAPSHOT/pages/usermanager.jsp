@@ -3,12 +3,27 @@
 <%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
 
 <%@include file="header.jsp" %>
+<div class="container">
+	<div class="row">
+		<div id="loader">
+    		<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="lading"></div>
+		</div>
+	</div>
+</div>
  <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        Quản lý người dùng
+        Quản lý người dùng 
       </h1>
       <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Trang chủ</a></li>
@@ -287,6 +302,12 @@
   			    processData: false,
   			    contentType: false,
   			    type: 'POST',
+  			  	beforeSend: function(){
+                  $("#loader").show();
+              	},
+              	complete: function(){
+            	  $("#loader").hide();
+              	},
   			    success: function(data){
   			      if(data=="uploaded"){
   			    	$("#err_image").html("");
@@ -409,6 +430,12 @@
     			    contentType: false, 
     			    cache: false,
     			    type: 'POST',
+    			    beforeSend: function(){
+		                  $("#loader").show();
+		            },
+		              complete: function(){
+		            	  $("#loader").hide();
+		              },
     			    success: function(data){
     			      if(data=="uploaded"){
     			    	$("#err_image1").html("");

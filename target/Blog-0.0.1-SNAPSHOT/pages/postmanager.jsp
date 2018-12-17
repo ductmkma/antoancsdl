@@ -2,6 +2,21 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
 <%@include file="header.jsp" %>
+<div class="container">
+	<div class="row">
+		<div id="loader">
+    		<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="lading"></div>
+		</div>
+	</div>
+</div>
  <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -27,7 +42,7 @@
           </div>
         </div>
         <div class="box-body">
-         	 <table id="tableposts" class="table table-striped table-responsive table-hover">
+         	 <table id="tableposts" class="table table-striped table-responsive table-hover" style="width:100%">
 				<thead>
 					<tr>
 						<th>ID</th>
@@ -155,6 +170,12 @@
 		              data:{
 		            	  action: 'delete',
 		            	  id: code
+		              },
+		              beforeSend: function(){
+		                  $("#loader").show();
+		              },
+		              complete: function(){
+		            	  $("#loader").hide();
 		              },
 		              success: function(res)
 		              {

@@ -930,7 +930,6 @@
 									</a>
 									<div class="sentence">
 										<span class="text">${post.title}</span>
-										
 									</div>
 									<div class="post_content page_margin_top_section clearfix">
 										<div class="content_box">

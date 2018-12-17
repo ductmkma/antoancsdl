@@ -98,7 +98,14 @@
   	         			return "Hiện";
   	         		}
   	         	} },
-  	         	{ "data": "createdAt" },
+  	         	{ "data": "createdAt",
+  	         		"render": function (data) {
+  	         	        var date = new Date(data);
+  	         	        var month = date.getMonth() + 1;
+  	         	        return date.getDate() +"-" +(month >=10 ? month : "0" + month) + "-" + date.getFullYear() +"\t"+ date.getHours() +":"+date.getMinutes()+":"+date.getSeconds();
+  	         	    }	
+  	         	},
+  	         	
   	         	{ "data": "action",
   	            	render: function (data, type, row) {
   	                    return ' <a class="btn btn-primary btn-sm btn-edit" href="categories/edit/'+row.id+'" id="'+row.id+'"  title="Sửa"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> <spring:message code="edit"></spring:message></a> <a id="'+row.id+'" class="btn btn-danger btn-sm btn-delete " href="javascript:;" title="Xóa" ><i id="deleteUnit" class="fa fa-trash-o" aria-hidden="true"></i> <spring:message code="delete"></spring:message></a>';

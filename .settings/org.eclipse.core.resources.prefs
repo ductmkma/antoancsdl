@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
+encoding//src/main/java/com/zent/controller/ActivityLogsController.java=UTF-8
 encoding//src/main/java/com/zent/controller/CategoriesController.java=UTF-8
 encoding//src/main/java/com/zent/controller/PostsController.java=UTF-8
 encoding//src/main/java/com/zent/controller/TagsController.java=UTF-8

@@ -6,7 +6,12 @@
  *           Please visit http://opensource.org/licenses/MIT for more information
  */
  html,body{height:100%}
- 
+ .dt-method{
+	color: white;
+    text-transform: uppercase;
+    padding: 4px 6px 2px;
+    border-radius: 12px!important;
+}
  #image-preview {
   width: 400px;
   height: 400px;

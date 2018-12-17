@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.zent.dao.IActivityLogs;
 import com.zent.dao.ICategoriesDAO;
 import com.zent.dao.IPostsDAO;
 import com.zent.dao.ITagsDAO;
 import com.zent.dao.IUserDAO;
+import com.zent.entity.ActivityLogs;
 import com.zent.entity.Posts;
 import com.zent.utils.Constant;
 
@@ -59,6 +61,15 @@ public class BlogController {
 	public void setPostsDAO(IPostsDAO postsDAO) {
 		this.postsDAO = postsDAO;
 	}
+	private IActivityLogs activityDAO;
+
+	public IActivityLogs getActivityDAO() {
+		return activityDAO;
+	}
+
+	public void setActivityDAO(IActivityLogs activityDAO) {
+		this.activityDAO = activityDAO;
+	}
 	@RequestMapping(value = "/{slug}", method = RequestMethod.GET)
 	public String index(@PathVariable("slug") String slug, Model model, HttpSession session,HttpServletRequest request) {
 		Posts post = postsDAO.getPost(slug);
@@ -71,6 +82,8 @@ public class BlogController {
 		model.addAttribute("lastestPost",postsDAO.lastedPost());
 		model.addAttribute("author",userDAO.getAuthor());
 		model.addAttribute("post",post);
+		ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+		activityDAO.insert(al);
 		return "blogdetail";
 	}
 	@RequestMapping(value = "", method = RequestMethod.GET)
@@ -100,6 +113,8 @@ public class BlogController {
 		model.addAttribute("topView",postsDAO.topView());
 		model.addAttribute("lastestPost",postsDAO.lastedPost());
 		model.addAttribute("author",userDAO.getAuthor());
+		ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+		activityDAO.insert(al);
 		return "blog";
 	}
 	@RequestMapping(value = "/categories/{slug}", method = RequestMethod.GET)
@@ -109,11 +124,15 @@ public class BlogController {
 		model.addAttribute("topView",postsDAO.topView());
 		model.addAttribute("lastestPost",postsDAO.lastedPost());
 		model.addAttribute("author",userDAO.getAuthor());
+		ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+		activityDAO.insert(al);
 		return "category";
 	}
 	@RequestMapping(value = "/author/{id}", method = RequestMethod.GET)
 	public String indexAuthor(@PathVariable("id") Integer id,Model model, HttpSession session,HttpServletRequest request) {
 		model.addAttribute("countPost",postsDAO.getCountAuthor(id));
+		ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+		activityDAO.insert(al);
 		return "category";
 	}
 }

@@ -27,7 +27,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.zent.dao.IActivityLogs;
 import com.zent.dao.ICategoriesDAO;
+import com.zent.entity.ActivityLogs;
 import com.zent.entity.Category;
 import com.zent.json.CategoriesJsonObject;
 import com.zent.utils.Constant;
@@ -38,7 +40,15 @@ import com.zent.validator.CategoryValidator;
 public class CategoriesController {
 	private ICategoriesDAO categoriesDAO;
 	private CategoryValidator categoryValidator;
-	
+	private IActivityLogs activityDAO;
+
+	public IActivityLogs getActivityDAO() {
+		return activityDAO;
+	}
+
+	public void setActivityDAO(IActivityLogs activityDAO) {
+		this.activityDAO = activityDAO;
+	}
 	public CategoryValidator getCategoryValidator() {
 		return categoryValidator;
 	}
@@ -56,10 +66,12 @@ public class CategoriesController {
 	}
 
 	@RequestMapping(value = "/categories", method = RequestMethod.GET)
-	public String index(Model model, HttpSession session) {
+	public String index(Model model, HttpSession session,HttpServletRequest request) {
 		if(session.getAttribute("fullname")!=null&&session.getAttribute("fullname")!="") {
 			model.addAttribute("openMenuManagerPosts", "menu-open active");
 			model.addAttribute("activeMenuCategories", "active");
+			ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+			activityDAO.insert(al);
 			return "categoriesmanager";
 		}else {
 			return "redirect:/login";
@@ -68,11 +80,13 @@ public class CategoriesController {
 
 	}
 	@RequestMapping(value = "categories/add", method = RequestMethod.GET)
-	public String cate(Model model, HttpSession session) {
+	public String cate(Model model, HttpSession session,HttpServletRequest request) {
 		if(session.getAttribute("fullname")!=null&&session.getAttribute("fullname")!="") {
 			model.addAttribute("category", new Category());
 			model.addAttribute("openMenuManagerPosts", "menu-open active");
 			model.addAttribute("activeMenuCategories", "active");
+			ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+			activityDAO.insert(al);
 			return "categoriesadd";
 		}else {
 			return "redirect:/login";
@@ -86,11 +100,13 @@ public class CategoriesController {
 	      binder.addValidators(categoryValidator);
 	 }
 	@RequestMapping(value = "categories/add", method = RequestMethod.POST)
-	public String add(@ModelAttribute("category") @Validated Category cate,BindingResult result, Model model ,HttpSession session) {
+	public String add(@ModelAttribute("category") @Validated Category cate,BindingResult result, Model model ,HttpSession session,HttpServletRequest request) {
 		if(result.hasErrors()) {
 			return "categoriesadd";
 		}else if(cate!=null) {
 			categoriesDAO.insert(cate);
+			ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+			activityDAO.insert(al);
 			return "redirect:/categories";
 		}
 		return null;
@@ -98,20 +114,24 @@ public class CategoriesController {
 	}
 	//Edit categories
 	@RequestMapping(value = "categories/edit/{id}", method = RequestMethod.GET)
-	public String edit(@PathVariable("id") Integer id,Model model, HttpSession session) {
+	public String edit(@PathVariable("id") Integer id,Model model, HttpSession session,HttpServletRequest request) {
 		Category cate = new Category();
 		cate = categoriesDAO.getCategory(id);
 		model.addAttribute("category", cate);
 		model.addAttribute("openMenuManagerPosts", "menu-open active");
 		model.addAttribute("activeMenuCategories", "active");
+		ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+		activityDAO.insert(al);
 		return "categoriesedit";
 	}
 	@RequestMapping(value = "categories/edit/{id}", method = RequestMethod.POST)
-	public String editsubmit(@ModelAttribute("category") @Validated Category cate,BindingResult result, Model model ,HttpSession session) {
+	public String editsubmit(@ModelAttribute("category") @Validated Category cate,BindingResult result, Model model ,HttpSession session,HttpServletRequest request) {
 		if(result.hasErrors()) {
 			return "categoriesedit";
 		}else if(cate!=null) {
 			categoriesDAO.update(cate);
+			ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+			activityDAO.insert(al);
 			return "redirect:/categories";
 		}
 		return null;
@@ -120,7 +140,7 @@ public class CategoriesController {
 	//Delete categories
 	@RequestMapping(value = "/delete", method = RequestMethod.POST, produces = "application/json")
 	public @ResponseBody JsonResponse add(@ModelAttribute(value = "category") Category cate, BindingResult result,
-			HttpServletRequest request, HttpServletResponse response, Model model) {
+			HttpServletRequest request, HttpServletResponse response, Model model,HttpSession session) {
 		String action = request.getParameter("action");
 		Date date = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
@@ -130,6 +150,8 @@ public class CategoriesController {
 				int id = Integer.parseInt(request.getParameter("id"));
 				categoriesDAO.delete(cate);
 				if (!result.hasErrors()) {
+					ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+					activityDAO.insert(al);
 					res.setStatus("SUCCESS");
 					res.setResult(new Boolean(true));
 				} else {
@@ -145,7 +167,7 @@ public class CategoriesController {
 	}
 	//show list
 	@RequestMapping(value = "/listcate", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
-	public @ResponseBody String springPaginationDataTables(HttpServletRequest request) throws IOException {
+	public @ResponseBody String springPaginationDataTables(HttpServletRequest request, HttpSession session) throws IOException {
 
 		// Fetch the page number from client
 		Integer pageNumber = 0;
@@ -186,7 +208,8 @@ public class CategoriesController {
 		CateJsonObject.setAaData(listCate);
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String json2 = gson.toJson(CateJsonObject);
-		// System.out.println(json2);
+		ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+		activityDAO.insert(al);
 		return json2;
 	}
 }

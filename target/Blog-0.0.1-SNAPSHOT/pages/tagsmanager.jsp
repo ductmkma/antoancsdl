@@ -2,8 +2,24 @@
     pageEncoding="UTF-8"%>
 <%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
 <%@include file="header.jsp" %>
+<div class="container">
+	<div class="row">
+		<div id="loader">
+    		<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="dot"></div>
+			<div class="lading"></div>
+		</div>
+	</div>
+</div>
  <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
+  
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
@@ -30,7 +46,7 @@
 				<thead>
 					<tr>
 						<th>ID</th>
-						<th>Tên danh mục</th>
+						<th>Tên thẻ</th>
 						<th>Slug</th>
 						<th>SL sử dụng</th>
 						<th>Ngày tạo</th>
@@ -69,6 +85,45 @@
 			        <div class="modal-footer">
 			          <button  type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
 			          <button type="submit" id="themmoi" class="btn btn-primary">Add Tags</button>
+			        </div>
+		 		</form>
+		      </div><!-- /.modal-content -->
+		    </div><!-- /.modal-dialog -->
+		  </div><!-- /.modal -->
+        <!-- /.box-body -->
+        <!-- /.box-footer-->
+      </div>
+      <!-- /.box -->
+      
+      <!-- Modal edit -->
+		  <div class="modal fade" id="modal-edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		    <div class="modal-dialog">
+		      <div class="modal-content">
+		        <div class="modal-header">
+		          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		          <h4 class="modal-title">Edit tags</h4>
+		        </div>
+		        <div class="modal-body">
+					<form  method="post" id="frm-edit">
+					<input type="hidden" class="form-control" name="action" id="action" value="edit"/>
+					<input type="hidden" class="form-control" name="id" id="id-edit" value=""/>
+					
+					<div class="form-group row">
+						<label for="inputEmail3" class="col-sm-2 form-control-label">Tags Name</label> 
+						<div class="col-sm-10">
+							<input type="text" class="form-control"  name="name" id="name-edit" placeholder="Tags Name"/>
+							<p id="err_tagsname" class="error"></p>
+						</div>
+					</div>
+					<div class="form-group row">
+						<label for="inputEmail3" class="col-sm-2 form-control-label">Slug tags</label> 
+						<div class="col-sm-10">
+							<input type="text" readonly="readonly" class="form-control"  name="slug" id="slug-edit" placeholder=""/>
+						</div>
+					</div>
+			        <div class="modal-footer">
+			          <button  type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
+			          <button type="submit" id="themmoi" class="btn btn-primary">Edit Tags</button>
 			        </div>
 		 		</form>
 		      </div><!-- /.modal-content -->
@@ -133,6 +188,7 @@
   		$("#btn-add").on('click',function(){
   			$("#modal-add").modal('show');
   		});
+  		
   		$("#name").on('keyup',function(){
 			 var title, slug;
 	         //Lấy text từ thẻ input title 
@@ -165,6 +221,38 @@
 	        	 $("#slug").val(slug);
 	       
 		});
+  		$("#name-edit").on('keyup',function(){
+			 var title, slug;
+	         //Lấy text từ thẻ input title 
+	         title = $("#name-edit").val();
+	         //Đổi chữ hoa thành chữ thường
+	         slug = title.toLowerCase();
+	         //Đổi ký tự có dấu thành không dấu
+	         slug = slug.replace(/á|à|ả|ạ|ã|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/gi, 'a');
+	         slug = slug.replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/gi, 'e');
+	         slug = slug.replace(/i|í|ì|ỉ|ĩ|ị/gi, 'i');
+	         slug = slug.replace(/ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ/gi, 'o');
+	         slug = slug.replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/gi, 'u');
+	         slug = slug.replace(/ý|ỳ|ỷ|ỹ|ỵ/gi, 'y');
+	         slug = slug.replace(/đ/gi, 'd');
+	         //Xóa các ký tự đặt biệt
+	         slug = slug.replace(/\`|\~|\!|\@|\#|\||\$|\%|\^|\&|\*|\(|\)|\+|\=|\,|\.|\/|\?|\>|\<|\'|\"|\:|\;|_/gi, '');
+	         //Đổi khoảng trắng thành ký tự gạch ngang
+	         slug = slug.replace(/ /gi, "-");
+	         //Đổi nhiều ký tự gạch ngang liên tiếp thành 1 ký tự gạch ngang
+	         //Phòng trường hợp người nhập vào quá nhiều ký tự trắng
+	         slug = slug.replace(/\-\-\-\-\-/gi, '-');
+	         slug = slug.replace(/\-\-\-\-/gi, '-');
+	         slug = slug.replace(/\-\-\-/gi, '-');
+	         slug = slug.replace(/\-\-/gi, '-');
+	         //Xóa các ký tự gạch ngang ở đầu và cuối
+	         slug = '@' + slug + '@';
+	         slug = slug.replace(/\@\-|\-\@|\@/gi, '');
+	         //In slug ra textbox có id “slug”
+	     
+	        	 $("#slug-edit").val(slug);
+	       
+		});
   		//add tags
   		$("#frm-add").on('submit',function(e){
   			  e.preventDefault();
@@ -177,7 +265,6 @@
 	                data:formData,	
 	               	success:function(response){
 	               		if(response.status=="SUCCESS"){
-	               				debugger;
 		               			$("#modal-add").modal('hide');
 		               			$('#tabletags').DataTable().ajax.reload();   
 			                  	toastr.success('Thêm mới thành công!');
@@ -185,7 +272,6 @@
                					var err_tagsname = response.result[0].codes[3];
                					$("#err_tagsname").html(err_tagsname);
                				}
-	               		
 	                },
 	               	 error: function (xhr, ajaxOptions, thrownError)
 	                {
@@ -194,7 +280,47 @@
 	              });
   		});
   		//edit tags
-  		
+  		$("#tabletags").on('click','.btn-edit',function(){
+  			$('#modal-edit').modal('show');
+  			$("#id-edit").val($(this).attr('id'));
+  			var tagname = $(this).parent().parent().find('td:eq(1)').html();
+  			$("#name-edit").val(tagname);
+  			var slug = $(this).parent().parent().find('td:eq(2)').html();
+  			$("#slug-edit").val(slug);
+  			$("#frm-edit").on('submit',function(e){
+    			  e.preventDefault();
+    			  var form= $('#frm-edit');
+ 	              var formData= form.serialize();
+    			  $.ajax({
+    			    url: ctx+'/tag',
+    			    data: formData,
+    			    dataType: 'json',
+    			    type: 'POST',
+    			    beforeSend: function(){
+		                  $("#loader").show();
+		              },
+		              complete: function(){
+		            	  $("#loader").hide();
+		              },
+    			    success: function(response){
+    			    	debugger;
+    			    	if(response.status=="SUCCESS"){
+	               			$("#modal-edit").modal('hide');
+	               			$('#tabletags').DataTable().ajax.reload();   
+		                  	toastr.success('Cập nhật thành công!');
+               			}else{
+           					var err_tagsname = response.result[0].codes[3];
+           					$("#err_tagsname").html(err_tagsname);
+           				}
+    			    },
+    	             error: function (xhr, ajaxOptions, thrownError)
+    	              {
+    	            	 
+    	              }
+    			  });
+    		});
+  			  
+  		});
   		//delete tags
   		$("#tabletags").on("click",'.btn-delete',function(){
   			var code = $(this).attr('id');
@@ -221,6 +347,12 @@
 		              data:{
 		            	  action: 'delete',
 		            	  id: code
+		              },
+		              beforeSend: function(){
+		                  $("#loader").show();
+		              },
+		              complete: function(){
+		            	  $("#loader").hide();
 		              },
 		              success: function(res)
 		              {

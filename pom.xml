@@ -98,5 +98,24 @@
 			<artifactId>ojdbc7</artifactId>
 			<version>12.1.0.1</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.jasypt/jasypt -->
+		<dependency>
+			<groupId>org.jasypt</groupId>
+			<artifactId>jasypt</artifactId>
+			<version>1.9.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.jasypt/jasypt-spring31 -->
+		<dependency>
+			<groupId>org.jasypt</groupId>
+			<artifactId>jasypt-spring31</artifactId>
+			<version>1.9.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.jasypt/jasypt-spring3 -->
+		<dependency>
+			<groupId>org.jasypt</groupId>
+			<artifactId>jasypt-spring3</artifactId>
+			<version>1.9.0</version>
+		</dependency>
+
 	</dependencies>
 </project>

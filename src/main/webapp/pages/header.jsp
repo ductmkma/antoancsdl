@@ -721,8 +721,8 @@
       <!-- sidebar menu: : style can be found in sidebar.less -->
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">BẢNG ĐIỀU KHIỂN</li>
-        <li class="active treeview">
-          <a href="<%=request.getContextPath()%>/dashboard">
+        <li class="<c:out value="${activeMenuDashBroard}"></c:out> treeview">
+          <a href="<%=request.getContextPath()%>/index">
             <i class="fa fa-dashboard"></i> <span>Dashboard</span>
           </a>
         </li>
@@ -747,9 +747,9 @@
           </a>
         </li>
          <li class="header">HỆ THỐNG</li>
-        <li class="treeview">
-          <a href="#">
-            <i class="fa fa-cogs" aria-hidden="true"></i> <span>QUẢN LÝ HỆ THỐNG</span>
+        <li class="<c:out value="${activeMenuActivity}"></c:out> ">
+          <a href="<%=request.getContextPath()%>/activitylogs">
+            <i class="fa fa-cogs" aria-hidden="true"></i> <span>LỊCH SỬ HOẠT ĐỘNG</span>
           </a>
         </li>   
       </ul>

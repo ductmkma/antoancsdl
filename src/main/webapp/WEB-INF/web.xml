@@ -23,6 +23,7 @@
 		<param-name>contextConfigLocation</param-name>
 		<param-value>/WEB-INF/blog-config.xml</param-value>
 	</context-param>
+	
 <!-- 	 spring -->
 	<servlet>
 	    <servlet-name>Blog</servlet-name>

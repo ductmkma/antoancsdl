@@ -35,7 +35,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.zent.dao.IActivityLogs;
 import com.zent.dao.IUserDAO;
+import com.zent.entity.ActivityLogs;
 import com.zent.entity.Category;
 import com.zent.entity.User;
 import com.zent.json.UserJsonObject;
@@ -48,7 +50,15 @@ import com.zent.validator.LoginValidator;
 public class UserController {
 	private IUserDAO userDAO;
 	private LoginValidator loginValidator;
+	private IActivityLogs activityDAO;
 
+	public IActivityLogs getActivityDAO() {
+		return activityDAO;
+	}
+
+	public void setActivityDAO(IActivityLogs activityDAO) {
+		this.activityDAO = activityDAO;
+	}
 	public LoginValidator getLoginValidator() {
 		return loginValidator;
 	}
@@ -74,14 +84,19 @@ public class UserController {
 	}
 	
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
-	public String login(Model model, HttpSession session) {
+	public String login(Model model, HttpSession session,HttpServletRequest request) {
 		model.addAttribute("user", new User());
+		ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+		activityDAO.insert(al);
 		return "login";
 	}
 	@RequestMapping(value = "/index", method = RequestMethod.GET)
-	public String index1(Model model, HttpSession session) {
+	public String index1(Model model, HttpSession session,HttpServletRequest request) {
 		if(session.getAttribute("fullname")!=null&&session.getAttribute("fullname")!="") {
 			model.addAttribute("user", new User());
+			model.addAttribute("activeMenuDashBroard", "active");
+			ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+			activityDAO.insert(al);
 			return "index";
 		}else {
 			return "redirect:/login";
@@ -102,7 +117,7 @@ public class UserController {
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public String loginsubmit(@RequestParam("g-recaptcha-response") String recapchaResponse,@ModelAttribute("user") @Validated User user, BindingResult result, Model model,
-			HttpSession session) {
+			HttpSession session,HttpServletRequest request) {
 		if(recapchaResponse!=null&&recapchaResponse!="") {
 			if(new VerifyUtils().verify(recapchaResponse)) {
 				if (result.hasErrors()) {
@@ -111,6 +126,10 @@ public class UserController {
 				if (user != null && userDAO.checkLogin(user)) {
 					session.setAttribute("fullname", userDAO.getFullName(user));
 					session.setAttribute("userId", userDAO.getUserId(user));
+					//session.setAttribute("fullname", "null");
+					//session.setAttribute("userId", "1");
+					ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+					activityDAO.insert(al);
 					return "redirect:index";
 				}else {
 					model.addAttribute("err","Email hoặc mật khẩu không đúng.");
@@ -125,9 +144,11 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/admin", method = RequestMethod.GET)
-	public String index(Model model, HttpSession session) {
+	public String index(Model model, HttpSession session,HttpServletRequest request) {
 		if(session.getAttribute("fullname")!=null&&session.getAttribute("fullname")!="") {
 			model.addAttribute("activeMenuUser", "active");
+			ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+			activityDAO.insert(al);
 			return "usermanager";
 		}else {
 			return "redirect:/login";
@@ -148,7 +169,7 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/listuser", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
-	public @ResponseBody String springPaginationDataTables(HttpServletRequest request) throws IOException {
+	public @ResponseBody String springPaginationDataTables(HttpServletRequest request,HttpSession session) throws IOException {
 
 		// Fetch the page number from client
 		Integer pageNumber = 0;
@@ -184,14 +205,15 @@ public class UserController {
 		personJsonObject.setAaData(listUser);
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String json2 = gson.toJson(personJsonObject);
-		// System.out.println(json2);
+		ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+		activityDAO.insert(al);
 		return json2;
 	}
 
 	String imageName = "";
 
 	@PostMapping("/upload")
-	public @ResponseBody String fileUpload(@RequestParam("file") MultipartFile file) throws IOException {
+	public @ResponseBody String fileUpload(@RequestParam("file") MultipartFile file,HttpServletRequest request, HttpSession session) throws IOException {
 
 		// Save file on system
 		if (!file.getOriginalFilename().isEmpty()) {
@@ -201,6 +223,8 @@ public class UserController {
 			outputStream.flush();
 			outputStream.close();
 			imageName = file.getOriginalFilename();
+			ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+			activityDAO.insert(al);
 			return "uploaded";
 		}
 		return "";
@@ -208,9 +232,16 @@ public class UserController {
 
 	@RequestMapping(value = "/user", method = RequestMethod.POST, produces = "application/json")
 	public @ResponseBody JsonResponse add(@ModelAttribute(value = "user") User user, BindingResult result,
-			HttpServletRequest request, HttpServletResponse response, Model model) {
+			HttpServletRequest request, HttpServletResponse response, Model model,HttpSession session) {
 		String action = request.getParameter("action");
+		String remoteAddr = "";
 
+        if (request != null) {
+            remoteAddr = request.getHeader("X-FORWARDED-FOR");
+            if (remoteAddr == null || "".equals(remoteAddr)) {
+                remoteAddr = request.getRemoteAddr();
+            }
+        }
 		Date date = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
 		ObjectMapper mapper = new ObjectMapper();
@@ -237,6 +268,8 @@ public class UserController {
 				if (!result.hasErrors()) {
 					user.setAvatar(imageName);
 					userDAO.update(user);
+					ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+					activityDAO.insert(al);
 					res.setStatus("SUCCESS");
 					res.setResult(new Boolean(true));
 				} else {
@@ -271,6 +304,8 @@ public class UserController {
 				if (!result.hasErrors()) {
 					user.setAvatar(imageName);
 					userDAO.insert(user);
+					ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+					activityDAO.insert(al);
 					res.setStatus("SUCCESS");
 					res.setResult(new Boolean(true));
 				} else {
@@ -290,6 +325,8 @@ public class UserController {
 				userDAO.delete(user);
 				if (!result.hasErrors()) {
 					res.setStatus("SUCCESS");
+					ActivityLogs al = new ActivityLogs(activityDAO.getMethod(request), activityDAO.getIpAddress(), activityDAO.getDataBaseName(), activityDAO.getBrowser(request), activityDAO.getOs(request), activityDAO.getServerHost(), activityDAO.getHostName(), activityDAO.getMachineConnect(), activityDAO.getLink(request), String.valueOf(session.getAttribute("fullname")),activityDAO.getAccount());
+					activityDAO.insert(al);
 					res.setResult(new Boolean(true));
 				} else {
 					res.setStatus("FAIL");
