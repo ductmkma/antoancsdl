@@ -20,8 +20,7 @@
 	<mvc:resources location="/css/" mapping="/css/**" />
 	<mvc:resources mapping="/static/**" location="/static/" />
 	<mvc:resources mapping="/upload/**" location="/upload/" />
-
-
+	
 	<bean
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix">

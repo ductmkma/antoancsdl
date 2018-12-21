@@ -116,6 +116,5 @@
 			<artifactId>jasypt-spring3</artifactId>
 			<version>1.9.0</version>
 		</dependency>
-
 	</dependencies>
 </project>
